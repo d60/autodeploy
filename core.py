@@ -13,7 +13,7 @@ __all__ = ['FlaskAppConfig']
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.DEBUG)
 
-REPO_URL_PATTERN = re.compile(r'https:\/\/github\.com\/[a-zA-Z0-9\-]+\/[a-zA-Z0-9\-]+\.git')
+REPO_URL_PATTERN = re.compile(r'https:\/\/github\.com\/[a-zA-Z0-9\-]+\/[a-zA-Z0-9\-_]+\.git')
 
 
 @dataclass
