@@ -107,7 +107,7 @@ class AppProcess:
     process: Process | None = None
 
     def start_process(self) -> None:
-        process = Process(target=self.app.run_with_waitress)
+        process = Process(target=self.app.run)
         process.start()
         self.process = process
 
