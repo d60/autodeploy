@@ -22,6 +22,7 @@ class FlaskAppConfig:
     repo: str  # github repository URL
     app_file: str = 'app.py'  # path to the app file in repository
     app_name: str = 'app'  # app variable name
+    run_type: str = 'waitress'
     args: tuple = ()
     kwargs: dict = field(default_factory=dict)
 
@@ -73,17 +74,28 @@ class AppManager:
         return getattr(module, self.config.app_name)
 
     def run_with_waitress(self):
-        # 1. カレントディレクトリを移動する【前】に、絶対パスを確定させる
         abs_target_dir = os.path.abspath(self.config.directory)
         abs_app_path = os.path.abspath(self.config.path)
-        
-        # 2. その後、満を持してカレントディレクトリを移動
         os.chdir(abs_target_dir)
-        
-        # 3. 確定済みの絶対パスを使ってインポート
+
         from waitress import serve
         app = self.import_app(abs_app_path)
         serve(app, *self.config.args, **self.config.kwargs)
+
+    def run_with_uvicorn(self):
+        abs_target_dir = os.path.abspath(self.config.directory)
+        abs_app_path = os.path.abspath(self.config.path)
+        os.chdir(abs_target_dir)
+
+        import uvicorn
+        app = self.import_app(abs_app_path)
+        uvicorn.run(app, *self.config.args, **self.config.kwargs)
+
+    def run(self):
+        if self.config.run_type == 'waitress':
+            self.run_with_waitress()
+        elif self.config.run_type == 'uvicorn':
+            self.run_with_uvicorn()
 
 
 @dataclass
