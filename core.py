@@ -63,17 +63,14 @@ class AppManager:
 
     def import_app(self):
         self.apply_module_path()
-        spec = importlib.util.spec_from_file_location('app', self.config.app_file)
+        spec = importlib.util.spec_from_file_location('app', self.config.path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return getattr(module, self.config.app_name)
 
-    # def run_with_flask(self):
-    #     app = self.import_app()
-    #     app.run(*self.config.args, **self.config.kwargs)
-
     def run_with_waitress(self):
-        os.chdir(self.config.directory)
+        target_dir = os.path.abspath(self.config.directory)
+        os.chdir(target_dir)
         from waitress import serve
         app = self.import_app()
         serve(app, *self.config.args, **self.config.kwargs)
