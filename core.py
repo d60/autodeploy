@@ -61,18 +61,28 @@ class AppManager:
         if dir_name not in sys.path:
             sys.path.insert(0, dir_name)
 
-    def import_app(self):
-        self.apply_module_path()
-        spec = importlib.util.spec_from_file_location('app', self.config.path)
+    def import_app(self, abs_path: str):
+        # 修正：あらかじめ計算した絶対パスを引数で受け取る
+        dir_name = os.path.dirname(abs_path)
+        if dir_name not in sys.path:
+            sys.path.insert(0, dir_name)
+
+        spec = importlib.util.spec_from_file_location('app', abs_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return getattr(module, self.config.app_name)
 
     def run_with_waitress(self):
-        target_dir = os.path.abspath(self.config.directory)
-        os.chdir(target_dir)
+        # 1. カレントディレクトリを移動する【前】に、絶対パスを確定させる
+        abs_target_dir = os.path.abspath(self.config.directory)
+        abs_app_path = os.path.abspath(self.config.path)
+        
+        # 2. その後、満を持してカレントディレクトリを移動
+        os.chdir(abs_target_dir)
+        
+        # 3. 確定済みの絶対パスを使ってインポート
         from waitress import serve
-        app = self.import_app()
+        app = self.import_app(abs_app_path)
         serve(app, *self.config.args, **self.config.kwargs)
 
 
