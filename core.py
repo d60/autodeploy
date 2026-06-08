@@ -73,6 +73,7 @@ class AppManager:
     #     app.run(*self.config.args, **self.config.kwargs)
 
     def run_with_waitress(self):
+        os.chdir(self.config.directory)
         from waitress import serve
         app = self.import_app()
         serve(app, *self.config.args, **self.config.kwargs)
